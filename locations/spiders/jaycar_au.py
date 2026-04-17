@@ -15,7 +15,6 @@ class JaycarAUSpider(SitemapSpider, StructuredDataSpider):
     time_format = "%H:%M:%S"
     wanted_types = ["ElectronicsStore"]
     custom_settings = {"USER_AGENT": BROWSER_DEFAULT}
-    requires_proxy = True
 
     def sitemap_filter(self, entries):
         for entry in entries:
