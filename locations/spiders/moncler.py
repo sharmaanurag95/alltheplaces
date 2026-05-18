@@ -12,7 +12,6 @@ class MonclerSpider(scrapy.Spider):
     item_attributes = {"brand": "Moncler", "brand_wikidata": "Q1548951"}
     allowed_domains = ["moncler.com"]
     start_urls = ["https://www.moncler.com/on/demandware.store/Sites-MonclerEU-Site/it_IT/StoresApi-FindAll"]
-    requires_proxy = True
     custom_settings = {"ROBOTSTXT_OBEY": False, "USER_AGENT": BROWSER_DEFAULT}
 
     def parse(self, response: Response, **kwargs: Any) -> Any:
