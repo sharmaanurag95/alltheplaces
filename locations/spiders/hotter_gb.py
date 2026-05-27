@@ -22,7 +22,6 @@ class HotterGBSpider(JSONBlobSpider):
             "Alt-Used": "storelocator.hotter.com",
         },
     }
-    requires_proxy = True
 
     def post_process_item(self, item: Feature, response: Response, feature: dict) -> Iterable[Feature]:
         item["branch"] = feature["store"]
