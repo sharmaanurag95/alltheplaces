@@ -12,6 +12,7 @@ class TherapieClinicSpider(scrapy.Spider):
     name = "therapie_clinic"
     item_attributes = {"brand": "Thérapie Clinic", "brand_wikidata": "Q123034602"}
     start_urls = ["https://therapieclinic.com/api/clinic/locations"]
+    custom_settings = {"ROBOTSTXT_OBEY": False}
 
     def parse(self, response: Response, **kwargs: Any) -> Any:
         for location in response.json()["locations"]:
@@ -30,7 +31,7 @@ class TherapieClinicSpider(scrapy.Spider):
             for rule in self.get_primary(place["businessHours"]).get("timePeriods") or []:
                 if rule["closed"] is True:
                     item["opening_hours"].set_closed(rule["openDay"])
-                elif rule["closed"] is True:
+                elif rule["open24Hours"] is True:
                     item["opening_hours"].add_range(rule["openDay"], "00:00", "24:00")
                 else:
                     item["opening_hours"].add_range(rule["openDay"], rule["openTime"], rule["closeTime"])

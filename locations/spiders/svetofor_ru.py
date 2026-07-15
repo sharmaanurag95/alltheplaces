@@ -1,4 +1,5 @@
 from typing import Any
+from urllib.parse import urlparse
 
 import scrapy
 from chompjs import chompjs
@@ -26,8 +27,10 @@ class SvetoforRUSpider(scrapy.Spider):
                     elif isinstance(attribute, dict) and attribute.get("balloonContent"):
                         balloon = attribute["balloonContent"]
                         item["addr_full"] = balloon.split("<br />")[0]
-                        item["ref"] = item["website"] = "https:" + scrapy.Selector(text=balloon).xpath("//a/@href").get(
-                            default=""
-                        )
+                        url = "https:" + scrapy.Selector(text=balloon).xpath("//a/@href").get(default="")
+                        item["ref"] = url
+                        # Some source records use underscores in the subdomain, which are invalid hostnames.
+                        if "_" not in (urlparse(url).hostname or ""):
+                            item["website"] = url
                 apply_category(Categories.SHOP_SUPERMARKET, item)
                 yield item
