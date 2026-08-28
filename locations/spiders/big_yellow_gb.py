@@ -11,7 +11,6 @@ class BigYellowGBSpider(SitemapSpider, StructuredDataSpider):
     sitemap_urls = ["https://www.bigyellow.co.uk/sitemap.xml"]
     sitemap_rules = [("/*-self-storage-units/", "parse")]
     wanted_types = ["SelfStorage"]
-    requires_proxy = True
 
     def post_process_item(self, item, response, ld_data, **kwargs):
         if m := re.search(r"\"lat\":\"(-?\d+\.\d+)\",\"lng\":\"(-?\d+\.\d+)\"", response.text):
