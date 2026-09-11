@@ -14,7 +14,6 @@ class LuminorEESpider(Spider):
     # luminor.ee is behind Cloudflare (403 to datacenter IPs); the /kontaktid contacts page is
     # rendered client-side from this JSON document.
     contacts_url = "https://luminor.ee/dc/render/v1/ee/page?alias=%2Fkontaktid&language=et"
-    requires_proxy = True
     custom_settings = {"ROBOTSTXT_OBEY": False}
 
     async def start(self) -> AsyncIterator[Any]:
