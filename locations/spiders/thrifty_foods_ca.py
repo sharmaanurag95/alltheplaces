@@ -17,7 +17,6 @@ class ThriftyFoodsCASpider(SitemapSpider, StructuredDataSpider):
     sitemap_urls = ["https://www.thriftyfoods.com/sitemap/stores/sitemap.xml"]
     sitemap_rules = [(r"/stores/\d+-", "parse_sd")]
     wanted_types = ["GroceryStore"]
-    requires_proxy = True
     custom_settings = {"USER_AGENT": BROWSER_DEFAULT}
 
     def post_process_item(self, item: Feature, response: Response, ld_data: dict, **kwargs: Any) -> Iterable[Feature]:
