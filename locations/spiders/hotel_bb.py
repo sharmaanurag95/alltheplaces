@@ -16,7 +16,6 @@ class HotelBbSpider(SitemapSpider, StructuredDataSpider):
     sitemap_rules = [("/en/hotel/", "parse_sd")]
     custom_settings = {"ROBOTSTXT_OBEY": False, "USER_AGENT": BROWSER_DEFAULT}
     # Akamai blocks requests from data centre IPs with a 403 "Access Denied"; route through Zyte proxy.
-    requires_proxy = True
 
     def post_process_item(self, item: Feature, response: Response, ld_data: dict, **kwargs):
         if item["name"].upper().startswith("B&B HOTEL"):
