@@ -14,7 +14,6 @@ class MacCosmeticsSpider(Spider):
     name = "mac_cosmetics"
     item_attributes = {"brand": "MAC Cosmetics", "brand_wikidata": "Q2624442"}
     allowed_domains = ["maccosmetics.ca"]
-    requires_proxy = True
     only_hour = re.compile(r"^(\d\d?)([ap]m)", re.IGNORECASE)
     colon_missing = re.compile(r"^(\d?\d)(\d\d[ap]m)", re.IGNORECASE)
     am_missing = re.compile(r"^(\d?\d(:\d\d)?)$")
