@@ -1,66 +1,46 @@
+import re
 from copy import deepcopy
+from typing import AsyncIterator, Iterable
 
-from scrapy.spiders import SitemapSpider
+from scrapy.http import JsonRequest, Response
 
 from locations.categories import Categories, apply_category
 from locations.hours import DAYS, OpeningHours
 from locations.items import Feature
-from locations.pipelines.address_clean_up import clean_address
+from locations.json_blob_spider import JSONBlobSpider
 
 
-class RednersUSSpider(SitemapSpider):
+class RednersUSSpider(JSONBlobSpider):
     name = "redners_us"
     item_attributes = {"brand": "Redner's", "brand_wikidata": "Q7306166"}
-    allowed_domains = ["www.rednersmarkets.com"]
-    sitemap_urls = ["https://www.rednersmarkets.com/ldm_map_location-sitemap.xml"]
-    sitemap_rules = [(r"^https:\/\/www\.rednersmarkets\.com\/store-locations\/[a-zA-Z0-9\-]+(?:\.html)?$", "parse")]
+    allowed_domains = ["rednersmarkets.alwaysongrocery.net"]
+    start_urls = ["https://rednersmarkets.alwaysongrocery.net/cms/api/v1/AogGetStoreList"]
+    locations_key = "data"
 
-    def parse(self, response):
-        init_map_js = response.xpath('//script[contains(text(), "function initMap() {")]/text()').get()
-        properties = {
-            "ref": response.url,
-            "name": response.xpath(
-                '//article[contains(@class, "ldm_map_location")]//h1[contains(@class, "entry-title")]/text()'
-            ).get(),
-            "lat": init_map_js.split("lat: ", 1)[1].split(",", 1)[0].strip(),
-            "lon": init_map_js.split("lng: ", 1)[1].split("}", 1)[0].strip(),
-            "addr_full": clean_address(
-                response.xpath(
-                    '//article[contains(@class, "ldm_map_location")]//div[contains(@class, "entry-content")]/p[position() <= 2]//text()'
-                ).getall()
-            ),
-            "phone": " ".join(
-                response.xpath(
-                    '//article[contains(@class, "ldm_map_location")]//div[contains(@class, "entry-content")]/p[last() - 2]/text()'
-                ).getall()
-            ).strip(),
-            "website": response.url,
-            "opening_hours": OpeningHours(),
-        }
+    async def start(self) -> AsyncIterator[JsonRequest]:
+        yield JsonRequest(url=self.start_urls[0], data={"RSAClientId": "323"})
 
-        hours_string = (
-            "Mo-Su: "
-            + " ".join(
-                response.xpath(
-                    '//article[contains(@class, "ldm_map_location")]//div[contains(@class, "entry-content")]/p[last() - 1]/text()'
-                ).getall()
-            ).strip()
-        )
-        if "24 HOURS" in hours_string.upper():
-            properties["opening_hours"].add_days_range(DAYS, "00:00", "23:59")
+    def post_process_item(self, item: Feature, response: Response, feature: dict) -> Iterable[Feature]:
+        item["ref"] = feature["store_id"]
+        item["branch"] = re.sub(r"\s*#\s*\d+$", "", feature["ClientStoreName"])
+        item["phone"] = feature["StorePhoneNumber"]
+
+        item["opening_hours"] = OpeningHours()
+        if "24 HOURS" in feature["StoreTimings"].upper():
+            item["opening_hours"].add_days_range(DAYS, "00:00", "23:59")
         else:
-            properties["opening_hours"].add_ranges_from_string(hours_string)
+            item["opening_hours"].add_ranges_from_string(feature["StoreTimings"])
 
-        if "gas-station" in response.url or "quick-shoppe" in response.url:
-            properties["brand"] = "Redner's Quick Shoppe"
-            properties["brand_wikidata"] = "Q125102841"
-            convenience_store = deepcopy(properties)
-            convenience_store["ref"] = convenience_store["ref"] + "#convenience"
+        if "Quick" in feature["ClientStoreName"]:
+            item["brand"] = item["name"] = "Redner's Quick Shoppe"
+            item["brand_wikidata"] = "Q125102841"
+            convenience_store = deepcopy(item)
+            convenience_store["ref"] += "-convenience"
             apply_category(Categories.SHOP_CONVENIENCE, convenience_store)
-            yield Feature(**convenience_store)
-            properties["ref"] = properties["ref"] + "#fuel"
-            apply_category(Categories.FUEL_STATION, properties)
+            yield convenience_store
+            item["ref"] += "-fuel"
+            apply_category(Categories.FUEL_STATION, item)
         else:
-            apply_category(Categories.SHOP_SUPERMARKET, properties)
+            apply_category(Categories.SHOP_SUPERMARKET, item)
 
-        yield Feature(**properties)
+        yield item
