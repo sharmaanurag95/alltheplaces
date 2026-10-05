@@ -16,7 +16,6 @@ class SevenElevenTHSpider(Spider):
 
     name = "seven_eleven_th"
     item_attributes = SEVEN_ELEVEN_SHARED_ATTRIBUTES
-    requires_proxy = "TH"
     custom_settings = {
         # The website may block the spider
         "CONCURRENT_REQUESTS_PER_DOMAIN": 1,
