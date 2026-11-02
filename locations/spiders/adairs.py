@@ -15,7 +15,6 @@ class AdairsSpider(Spider):
     start_urls = [
         "https://www.adairs.com.au/api/store/search-store",
     ]
-    requires_proxy = "AU"
 
     async def start(self) -> AsyncIterator[JsonRequest]:
         yield JsonRequest(
