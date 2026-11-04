@@ -16,7 +16,6 @@ class RonaSpider(SitemapSpider, StructuredDataSpider):
     sitemap_urls = ["https://www.rona.ca/sitemap-stores-en.xml"]
     sitemap_rules = [(r"/store/[^/]+/[^/]+/([^/]+)$", "parse_sd")]
     wanted_types = ["HardwareStore"]
-    requires_proxy = "CA"
     search_for_facebook = False
     search_for_twitter = False
 
