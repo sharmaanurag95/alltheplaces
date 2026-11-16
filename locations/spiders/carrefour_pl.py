@@ -18,7 +18,6 @@ class CarrefourPLSpider(JSONBlobSpider, PlaywrightSpider):
     name = "carrefour_pl"
     start_urls = ["https://www.carrefour.pl/sklepy"]
     custom_settings = {"USER_AGENT": BROWSER_DEFAULT, "ROBOTSTXT_OBEY": False} | DEFAULT_PLAYWRIGHT_SETTINGS
-    requires_proxy = True
 
     brands = {
         "Carrefour Express Zielony ": CARREFOUR_EXPRESS,
