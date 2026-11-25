@@ -15,7 +15,6 @@ from locations.items import set_closed
 class DrMaxSpider(Spider):
     name = "dr_max"
     item_attributes = {"brand": "Dr. Max", "brand_wikidata": "Q56317371"}
-    requires_proxy = True
     store_locators = {
         "pl": "https://www.drmax.pl/apteki/",
         "cz": "https://www.drmax.cz/lekarny/",
@@ -23,7 +22,6 @@ class DrMaxSpider(Spider):
         "it": "https://www.drmax.it/le-nostre-farmacie/",
         "ro": "https://www.drmax.ro/farmacii/",
     }
-    requires_proxy = True
     custom_settings = {"ROBOTSTXT_OBEY": False, "CONCURRENT_REQUESTS": 1}
 
     async def start(self) -> AsyncIterator[JsonRequest]:
